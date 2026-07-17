@@ -1,0 +1,9 @@
+# Configuration for crew tasks
+# Example task structure:
+#
+# research_task:
+#   description: >
+#     Conduct deep research on {topic}.
+#   expected_output: >
+#     A comprehensive report detailing key findings and sources.
+#   agent: research_agent

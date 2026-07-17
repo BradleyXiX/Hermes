@@ -1,0 +1,10 @@
+# Configuration for crew agents
+# Example agent structure:
+#
+# research_agent:
+#   role: >
+#     Senior Research Assistant
+#   goal: >
+#     Find the most accurate and up-to-date information on the given topic.
+#   backstory: >
+#     You are an expert researcher with a keen eye for details. You specialize in gathering and synthesizing information.
