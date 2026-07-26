@@ -1,28 +1,32 @@
-import sys
+import os
+import asyncio
 from dotenv import load_dotenv
-from crewpy import HermesCrew # type: ignore (just a placeholder import, or use the local class)
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import CommandStart
 
+# Securely load configuration
 load_dotenv()
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+ALLOWED_CHAT_ID = os.getenv("ALLOWED_CHAT_ID")
 
-def run():
-    """Run the crew."""
-    print("Initializing Hermes...")
-    # Add input parameters for the task/crew run here
-    inputs = {
-        'topic': 'Agentic Workflows'
-    }
+# Initialize interface
+bot = Bot(token=TELEGRAM_BOT_TOKEN)
+dp = Dispatcher()
+
+# The Security Gatekeeper
+@dp.message(CommandStart())
+async def command_start_handler(message: types.Message) -> None:
+    # Fail-closed authorization check
+    if str(message.from_user.id) != ALLOWED_CHAT_ID:
+        print(f"Unauthorized access attempt from ID: {message.from_user.id}")
+        return 
     
-    # Try importing/running local crew setup
-    try:
-        from crew import HermesCrew
-        hermes_crew = HermesCrew()
-        crew_instance = hermes_crew.crew()
-        # result = crew_instance.kickoff(inputs=inputs)
-        # print("Result:")
-        # print(result)
-        print("Hermes initialized successfully.")
-    except Exception as e:
-        print(f"Error starting Hermes: {e}", file=sys.stderr)
+    await message.answer("Authentication successful. Hermes interface online. Awaiting commands.")
+
+async def main() -> None:
+    # Begin local polling (We will switch to Webhooks for AWS later)
+    print("Hermes local polling started...")
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    run()
+    asyncio.run(main())

@@ -1,33 +1,42 @@
 import os
-import yaml
-# pyrefly: ignore [missing-import]
-from crewai import Agent, Crew, Process, Task
 from dotenv import load_dotenv
+from crewai import Agent, Task, Crew, LLM
 
+# 1. Load Secrets
 load_dotenv()
 
-class HermesCrew:
-    """Hermes agent crew for managing tasks and knowledge."""
+# 2. Configure the free-tier Gemini LLM
+# We use gemini-2.0-flash for high-speed, cost-effective inference
+gemini_llm = LLM(model="gemini/gemini-2.0-flash")
 
-    def __init__(self) -> None:
-        self.agents_config = self._load_config("config/agents.yaml")
-        self.tasks_config = self._load_config("config/tasks.yaml")
+# 3. Define the Single-Responsibility Agent
+inbox_router = Agent(
+    role="Senior Inbox Triage Specialist",
+    goal="Analyze incoming emails and accurately categorize their urgency as High, Medium, or Low.",
+    backstory="You are a highly efficient assistant managing a software engineer's busy inbox. You understand technical jargon and prioritize urgent system alerts or direct recruiter outreach.",
+    llm=gemini_llm,
+    verbose=True
+)
 
-    def _load_config(self, file_path: str) -> dict:
-        if not os.path.exists(file_path):
-            return {}
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return yaml.safe_load(f) or {}
+# 4. Define the specific Task for the Agent
+triage_task = Task(
+    description="Analyze this email: '{email_content}'. Categorize its urgency (High, Medium, Low) and provide a one-sentence justification.",
+    expected_output="A single word indicating urgency (High, Medium, Low), followed by a one-sentence justification.",
+    agent=inbox_router
+)
 
-    def crew(self) -> Crew:
-        """Creates the Hermes crew"""
-        # Placeholders for agents and tasks
-        agents = []
-        tasks = []
+# 5. Assemble the Crew (Even if it's just one agent for now)
+hermes_crew = Crew(
+    agents=[inbox_router],
+    tasks=[triage_task]
+)
 
-        return Crew(
-            agents=agents,
-            tasks=tasks,
-            process=Process.sequential,
-            verbose=os.getenv("VERBOSE", "True").lower() == "true"
-        )
+# --- Test Execution Block ---
+if __name__ == "__main__":
+    # Mock data to test our logic before hitting live APIs
+    mock_email = "URGENT: AWS Lambda deployment failed in production. Error 502 Bad Gateway."
+    
+    print("Initializing Hermes Triage Test...")
+    result = hermes_crew.kickoff(inputs={'email_content': mock_email})
+    print("\n=== Agent Output ===")
+    print(result)
