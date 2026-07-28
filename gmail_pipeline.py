@@ -39,12 +39,15 @@ def fetch_and_categorize_emails():
         creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
         service = build("gmail", "v1", credentials=creds)
 
+        # Added "newer_than:2m" to restrict the timeframe
+        print("Fetching emails from the last 2 months...")
+        
         # 2. Fetching emails from the university domain or specific academic portals
-        usiu_query = "from:(*@usiu.ac.ke OR *blackboard.com OR *instructure.com) is:unread"
+        usiu_query = "from:(*@usiu.ac.ke OR *blackboard.com OR *instructure.com) is:unread newer_than:2m"
         usiu_messages = get_emails(service, query=usiu_query)
 
         # 3. Fetching personal emails while excluding the university domains to prevent duplication
-        personal_query = "is:unread -from:(*@usiu.ac.ke OR *blackboard.com OR *instructure.com)"
+        personal_query = "is:unread -from:(*@usiu.ac.ke OR *blackboard.com OR *instructure.com) newer_than:2m"
         personal_messages = get_emails(service, query=personal_query)
 
         triage_payload = {

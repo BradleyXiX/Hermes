@@ -27,13 +27,19 @@ triage_task = Task(
     
     {email_data}
     
-    Categorize each email into one of two buckets based on these strict rules:
+    Categorize and summarize the emails based on these strict rules to prevent alert fatigue:
     
-    1. URGENT: The email requires a response, contains an upcoming USIU academic deadline, involves grades, or is a direct message from a VIP contact (e.g., Marie, your girlfriend, or specific professors). 
-    2. FYI: The email is a newsletter, a general university-wide announcement, a promotional offer, or a system alert that requires no action.
+    1. 🚨 URGENT: Requires immediate action, contains an upcoming USIU academic deadline, involves grades, or is a direct message from a VIP contact (e.g., Marie, your girlfriend, or professors). 
+       - For these, provide a hyper-concise 1-sentence summary.
+       - Bold the sender's name.
+       
+    2. ℹ️ FYI: Newsletters, general announcements, promotional offers, or system alerts. 
+       - DO NOT list these individually. 
+       - Compress all FYI emails into a single aggregate sentence at the very end of the message (e.g., "You also have 14 FYI emails consisting mostly of security advisories and promotional offers.").
     
-    Format the final output specifically for a Telegram message. Use standard emojis (like 🚨 for Urgent and ℹ️ for FYI). Bold the Sender's name and provide a 1-2 sentence summary of the email's core point. Do not include raw headers or clutter.''',
-    expected_output='A cleanly formatted Telegram message grouping emails strictly under 🚨 URGENT and ℹ️ FYI headers.',
+    Format the output specifically for a Telegram message. Prioritize extreme brevity. Do not include raw headers, introductory text, or unnecessary pleasantries.''',
+    
+    expected_output='A hyper-concise Telegram message focusing almost entirely on 🚨 URGENT items, with only a single aggregate sentence for FYI items at the bottom.',
     agent=triage_agent
 )
 
